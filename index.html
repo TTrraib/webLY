@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LY専用ページ</title>
+    <style>
+        /* --- 全局与基础样式 --- */
+        :root {
+            --card-background-color: rgba(0, 0, 0, 0.65);
+            --text-color: #ffffff;
+            --accent-color: #ff9db3;
+            --border-radius: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Microsoft YaHei', sans-serif;
+            background-image: url('https://youke1.picui.cn/s1/2025/09/20/68ce9dac0c6ac.png');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+
+        /* --- 启动弹窗 --- */
+        #startup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            padding: 100px 20px 40px 20px;
+            background-image: url('https://youke1.picui.cn/s1/2025/09/20/68ce9dfecd6e1.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .floating-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .enter-button {
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 157, 179, 0.4);
+        }
+
+        .enter-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 157, 179, 0.6);
+        }
+        
+        /* --- 主内容区域 --- */
+        #main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- 标题区域 --- */
+        header {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 80px;
+        }
+
+        .header-image-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 250px;
+            background-image: url('https://youke1.picui.cn/s1/2025/09/20/68ce9f061f606.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            background-color: rgba(26, 26, 26, 0.8);
+            padding: 15px 40px;
+            border-radius: var(--border-radius);
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+            white-space: nowrap;
+        }
+
+        /* --- 模板区域 --- */
+        .templates-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1600px;
+        }
+
+        .template-card {
+            flex: 1 1 400px;
+            min-width: 350px;
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-content {
+            background-color: var(--card-background-color);
+            padding: 25px;
+            height: 100%;
+        }
+        
+        .card-content h2, .card-content h3 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 157, 179, 0.5);
+            padding-bottom: 10px;
+        }
+        
+        .card-content strong {
+            color: #ffc9d6;
+        }
+
+        /* --- 特定模板样式 --- */
+        .action-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .action-button:hover {
+            background-color: #ff7f9e;
+        }
+
+        /* 模板二：随机任务 */
+        #random-task-display {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            min-height: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* 模板三：日程板块 */
+        #schedule-form input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: var(--text-color);
+        }
+        #schedule-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        #schedule-list li {
+            background-color: rgba(0,0,0,0.2);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #schedule-list li.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        #schedule-list button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 模板四：自我介绍 */
+        .intro-section h4 {
+            color: var(--accent-color);
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        /* 模板五：打赏弹窗 */
+        #donation-modal {
+            display: none; /* 默认隐藏 */
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+        .donation-content {
+            position: relative;
+            text-align: center;
+        }
+        .donation-content img {
+            max-width: 80%;
+            max-height: 80vh;
+            border-radius: 10px;
+        }
+        #close-donation {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            color: #fff;
+            background-color: #333;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+        }
+
+        /* 模板六：联系我 */
+        .contact-info p { margin-bottom: 10px; }
+        .contact-info a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .contact-info a:hover { text-decoration: underline; }
+
+        /* --- 音乐播放器 --- */
+        #music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background-image: url('https://youke1.picui.cn/s1/2025/09/20/68ceaf9e4f4b2.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            z-index: 999;
+            overflow: hidden;
+            transition: all 0.4s ease-in-out;
+        }
+        .music-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            cursor: pointer;
+        }
+        #minimize-btn {
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        .music-player-body {
+            padding: 10px;
+            max-height: 100px; /* 用于动画 */
+            transition: all 0.4s ease-in-out;
+        }
+        #music-player.minimized .music-player-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+        #music-player audio {
+            width: 100%;
+        }
+
+        /* --- 响应式设计 (手机端) --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+                padding: 10px 25px;
+                text-align: center;
+            }
+            .header-image-container { height: 150px; }
+            header { margin-bottom: 60px; }
+            .templates-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+            .template-card {
+                width: 95%;
+                flex-basis: auto;
+                min-width: 0;
+            }
+            #music-player {
+                width: calc(100vw - 20px);
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 启动弹窗 -->
+    <div id="startup-modal">
+        <div class="modal-content">
+            <img src="https://z.wiki/u/atNnYL" alt="icon" class="floating-icon">
+            <button class="enter-button" id="enter-btn">に入る</button>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div id="main-content">
+        <!-- 网页背景与标题 -->
+        <header>
+            <div class="header-image-container"></div>
+            <h1>LY専用ページ</h1>
+        </header>
+
+        <!-- 模板区域 -->
+        <main class="templates-container">
+            <!-- 模板一: 序言 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68ce9fbc74f6a.png');">
+                <div class="card-content">
+                    <h2>序言</h2>
+                    <p>本網頁主要是小鯉（@T_Trraib）的各種奇思妙想，包含各種內容，雖然有的待開發，但是期待一下吧，下面是一些bdsm和iiii簡單介紹（繁體），簡單了解一下吧:</p>
+                    <h3>BDSM與四愛：基礎概念入門</h3>
+                    <p>在探索多元的愛與關係時，BDSM和「四愛」是經常被提及的詞彙。它們代表了超越傳統框架的互動模式與情感表達。了解這些概念的核心，有助於我們更好地理解人類情感與關係的多樣性。</p>
+                    <h4>什麼是BDSM？</h4>
+                    <p><strong>B/D: 綁縛與紀律</strong> | <strong>D/s: 支配與臣服</strong> | <strong>S/M: 施虐與受虐</strong></p>
+                    <h4>BDSM的核心原則：</h4>
+                    <p><strong>SSC原則：</strong>Safe (安全), Sane (理智), Consensual (合意)。「沒有同意，就是傷害」。</p>
+                    <h4>什麼是四愛（第四愛）？</h4>
+                    <p>一種性別角色與傳統相反的親密關係模式。女性扮演主導角色，男性扮演順從角色。</p>
+                    <p><strong>總結：</strong>BDSM是廣泛的權力交換實踐，四愛是D/s關係在特定性別組合下的體現。最重要是溝通、尊重和合意。</p>
+                </div>
+            </article>
+
+            <!-- 模板二: 随机任务 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea0463ffe9.png');">
+                <div class="card-content">
+                    <h2>随机任务板块</h2>
+                    <p>点击下方按钮，随机生成一个任务吧！</p>
+                    <div id="random-task-display">...</div>
+                    <button class="action-button" id="generate-task-btn">生成新任务</button>
+                </div>
+            </article>
+
+            <!-- 模板三: 日程 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea1df6861f.png');">
+                <div class="card-content">
+                    <h2>日程板块</h2>
+                    <form id="schedule-form">
+                        <input type="text" id="task-input" placeholder="输入任务内容..." required>
+                        <input type="date" id="task-deadline">
+                        <button type="submit" class="action-button">添加日程</button>
+                    </form>
+                    <ul id="schedule-list"></ul>
+                </div>
+            </article>
+
+            <!-- 模板四: 自我介绍 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea20bc3b85.png');">
+                <div class="card-content">
+                    <h2>自我介绍</h2>
+                    <div class="intro-section">
+                        <h4>XP:</h4>
+                        <p>精神/身体羞辱、滴蜡、绳艺、捆绑、sp、鞭打、龟责、感官剥夺、24/7、规则协议、奖惩、温度/角色扮演/电击游戏、羞辱、贡奴、peg、坐脸、正常爱爱等...</p>
+                        <h4>门槛:</h4><p>88</p>
+                        <h4>喜欢:</h4>
+                        <p>颜值主义、美色、薄肌、胸肌、男妈妈、有礼貌、有经济基础、有空余时间、主动粘人、个子175＋、体毛管理、干净...</p>
+                        <h4>私信:</h4><p>随缘回。标准: 身高体重＋身材照</p>
+                        <h4>称呼:</h4><p>妈咪，妈妈都可以，优先姐姐，小鲤，老师</p>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- 模板五: 打赏 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea288e540a.png');">
+                <div class="card-content">
+                    <h2>打赏模块</h2>
+                    <p>如果喜欢，请支持一下吧……</p>
+                    <button class="action-button" id="show-donation-btn">点我打赏</button>
+                </div>
+            </article>
+
+            <!-- 模板六: 联系我 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea35d4fc57.png');">
+                <div class="card-content">
+                    <h2>联系我</h2>
+                    <div class="contact-info">
+                        <p><strong>姓名:</strong> 小鲤 (@T_Trraib)</p>
+                        <hr style="opacity: 0.3; margin: 15px 0;">
+                        <h3>活跃平台:</h3>
+                        <p>🔹 <a href="https://x.com/T_Trraib?s=09" target="_blank">推特 (Twitter)</a></p>
+                        <p>🔸 抖音</p>
+                        <p>🔺 小红书</p>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- 模板七: 期待 -->
+            <article class="template-card" style="background-image: url('https://youke1.picui.cn/s1/2025/09/20/68cea3ce381dc.png');">
+                <div class="card-content">
+                    <h2>敬请期待</h2>
+                    <p>更多内容请期待，未来会发布一些内容什么的...</p>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- 打赏弹窗 -->
+    <div id="donation-modal">
+        <div class="donation-content">
+            <span id="close-donation">&times;</span>
+            <img src="https://youke1.picui.cn/s1/2025/09/20/68cea302a1d2d.png" alt="打赏码">
+        </div>
+    </div>
+
+      <!-- 音乐播放器 -->
+    <div id="music-player">
+        <div class="music-player-header">
+            <span>背景音乐</span>
+            <span id="minimize-btn">—</span>
+        </div>
+        <div class="music-player-body">
+            <!-- 
+              已将音乐源更新为网易云音乐的外链URL。
+              ID: 1853327677
+            -->
+            <audio id="bg-music" loop controls>
+                <source src="https://music.163.com/song/media/outer/url?id=1853327677.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 启动弹窗与背景音乐控制 ---
+            const enterBtn = document.getElementById('enter-btn');
+            const startupModal = document.getElementById('startup-modal');
+            const bgMusic = document.getElementById('bg-music');
+
+            enterBtn.addEventListener('click', () => {
+                startupModal.style.display = 'none';
+                
+                // 尝试播放音乐。由于浏览器策略，自动播放可能需要用户与页面有交互。
+                // 点击“进入”按钮就是一次有效的交互。
+                bgMusic.play().catch(error => {
+                    console.log("音乐自动播放失败，可能需要用户手动点击播放按钮。", error);
+                });
+            });
+
+            // --- 随机任务板块 ---
+            const tasks = [
+                "晚上去公园或者小树林拍自己de漏屁股照片or裸照", "在商场或者便利店找一个角落拍自己屁股or狗几把照片都行", "带上口罩帽子全副武装，然后去找一个没人de监控位置，对着摄像头，撸自己狗几把一分钟，当然你也可以选择玩到射出来", "任何房间都行，在窗户上固定好假阳，然后zw，窗户不可以拉窗帘，最短30s", "去楼梯间对自己zw，自己找好楼梯间，别被发现了哦，要高潮了才算完成", "憋尿30分钟。", "找五人骂自己，接受羞辱。", "罚跪15分钟。", "快速撸自己鸡巴，快忍不住时停止。", "扇自己脸30次，可以不疼但是要有红印。", "跪地爬行五圈。", "一组涩图设置成锁屏一天。"
+            ];
+            const taskDisplay = document.getElementById('random-task-display');
+            const generateTaskBtn = document.getElementById('generate-task-btn');
+
+            function generateRandomTask() {
+                const randomIndex = Math.floor(Math.random() * tasks.length);
+                taskDisplay.textContent = tasks[randomIndex];
+            }
+            generateTaskBtn.addEventListener('click', generateRandomTask);
+            generateRandomTask(); 
+
+            // --- 日程板块 ---
+            const scheduleForm = document.getElementById('schedule-form');
+            const taskInput = document.getElementById('task-input');
+            const deadlineInput = document.getElementById('task-deadline');
+            const scheduleList = document.getElementById('schedule-list');
+
+            scheduleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const taskText = taskInput.value;
+                const deadline = deadlineInput.value;
+                if (taskText.trim() === '') return;
+
+                const listItem = document.createElement('li');
+                let content = `<span>${taskText}${deadline ? ` (截止: ${deadline})` : ''}</span>`;
+                listItem.innerHTML = `${content}<button class="complete-btn">完成</button>`;
+                scheduleList.appendChild(listItem);
+                taskInput.value = '';
+                deadlineInput.value = '';
+            });
+
+            scheduleList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('complete-btn')) {
+                    const listItem = e.target.closest('li');
+                    listItem.classList.toggle('completed');
+                    e.target.textContent = listItem.classList.contains('completed') ? '撤销' : '完成';
+                }
+            });
+
+            // --- 打赏模块 ---
+            const showDonationBtn = document.getElementById('show-donation-btn');
+            const donationModal = document.getElementById('donation-modal');
+            const closeDonationBtn = document.getElementById('close-donation');
+
+            showDonationBtn.addEventListener('click', () => { donationModal.style.display = 'flex'; });
+            closeDonationBtn.addEventListener('click', () => { donationModal.style.display = 'none'; });
+            donationModal.addEventListener('click', (e) => {
+                if (e.target === donationModal) {
+                    donationModal.style.display = 'none';
+                }
+            });
+
+            // --- 音乐播放器最小化 ---
+            const musicPlayer = document.getElementById('music-player');
+            const minimizeBtn = document.getElementById('minimize-btn');
+            const playerHeader = document.querySelector('.music-player-header');
+
+            playerHeader.addEventListener('click', (e) => {
+                // 确保点击的不是audio控件内部的元素（虽然这里不太可能，但保险起见）
+                if (e.target.tagName !== 'AUDIO') {
+                    musicPlayer.classList.toggle('minimized');
+                    minimizeBtn.textContent = musicPlayer.classList.contains('minimized') ? '＋' : '—';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+```
